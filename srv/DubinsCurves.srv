@@ -1,0 +1,9 @@
+# Service request for generating a Dubins Curves path.
+
+geometry_msgs/Pose      startPose
+geometry_msgs/Pose      targetPose
+float32                 radius
+float32                 samplingInterval
+---
+bool                    success
+geometry_msgs/PoseArray path
