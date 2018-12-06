@@ -8,17 +8,21 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   message_generation
   geometry_msgs
+  geographic_msgs
+  project11
 )
 
 add_service_files(
   FILES
   DubinsCurves.srv
+  DubinsCurvesLatLong.srv
 )
 
 generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  geographic_msgs
 )
 
 catkin_package(

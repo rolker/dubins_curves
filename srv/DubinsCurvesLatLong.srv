@@ -1,0 +1,9 @@
+# Service request for generating a Dubins Curves path.
+
+geographic_msgs/GeoPose   startGeoPose
+geographic_msgs/GeoPose   targetGeoPose
+float32                   radius
+float32                   samplingInterval
+---
+bool                      success
+geographic_msgs/GeoPose[] path

@@ -6,7 +6,9 @@ extern "C" {
     #include "dubins.h"
 }
 #include "dubins_curves/DubinsCurves.h"
+#include "dubins_curves/DubinsCurvesLatLong.h"
 #include <iostream>
+#include "project11/gz4d_geo.h"
 
 int buildPath(double q[3], double t, void* user_data)
 {
@@ -26,9 +28,7 @@ int buildPath(double q[3], double t, void* user_data)
 
 bool dubinsCurvesService(dubins_curves::DubinsCurves::Request &req, dubins_curves::DubinsCurves::Response &res)
 {
-    //std::cerr << req << std::endl;
     double rho = req.radius;
-    //std::cerr << "radius: " << rho << std::endl;
     
     tf::Quaternion q0(req.startPose.orientation.x,
                      req.startPose.orientation.y,
@@ -37,8 +37,6 @@ bool dubinsCurvesService(dubins_curves::DubinsCurves::Request &req, dubins_curve
     tf::Matrix3x3 m0(q0);
     double roll, pitch, yaw;
     m0.getRPY(roll, pitch, yaw);
-    
-    //std::cerr << "roll, pitch, yaw: " << roll << ", " << pitch << ", " << yaw << std::endl;
     
     double start[3];
     start[0] = req.startPose.position.x;
@@ -51,7 +49,6 @@ bool dubinsCurvesService(dubins_curves::DubinsCurves::Request &req, dubins_curve
                      req.targetPose.orientation.w);
     tf::Matrix3x3 m1(q1);
     m1.getRPY(roll, pitch, yaw);
-    //std::cerr << "roll, pitch, yaw: " << roll << ", " << pitch << ", " << yaw << std::endl;
     
     double target[3];
     target[0] = req.targetPose.position.x;
@@ -62,34 +59,103 @@ bool dubinsCurvesService(dubins_curves::DubinsCurves::Request &req, dubins_curve
     
     int dubins_ret = dubins_shortest_path(&path, start, target, rho);
     
-    //std::cerr << "Dubins return value: " << dubins_ret << std::endl;
-    
-    //std::cerr << "type: " << path.type << " rho: " << path.rho << " seg lengths: " << path.param[0] << ", " << path.param[1] << ", " << path.param[2] << std::endl;
-    
     if(dubins_ret == 0)
     {
         dubins_ret = dubins_path_sample_many(&path, req.samplingInterval, buildPath, &res);
         if(dubins_ret == 0)
             res.success = true;
-//         if(res.path.poses.size() >= 5)
-//         {
-//             for(int i = 0; i < 5; ++i)
-//                 std::cerr << i << ": " << res.path.poses[i] << std::endl;
-//             for(int i = res.path.poses.size()-5; i < res.path.poses.size(); ++i)
-//                 std::cerr << i << ": " << res.path.poses[i] << std::endl;
-//         }
     }
     
     return true;    
 }
 
+struct ResponseAndENU
+{
+    dubins_curves::DubinsCurvesLatLong::Response* res;
+    gz4d::LocalENU* localENU;
+};
+
+int buildPathLatLong(double q[3], double t, void* user_data)
+{
+    ResponseAndENU * ret = reinterpret_cast<ResponseAndENU*>(user_data);
+    
+    geographic_msgs::GeoPose pose;
+    tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, q[2]);
+    quaternionTFToMsg(quat, pose.orientation);
+    
+    gz4d::Point<double> local(q[0],q[1],0.0);
+    auto local_ll = ret->localENU->toLatLong(local);
+    
+    pose.position.latitude = local_ll[0];
+    pose.position.longitude = local_ll[1];
+    
+    ret->res->path.push_back(pose);
+    
+    return 0;
+}
+
+bool dubinsCurvesServiceLatLong(dubins_curves::DubinsCurvesLatLong::Request &req, dubins_curves::DubinsCurvesLatLong::Response &res)
+{
+    double rho = req.radius;
+    
+    tf::Quaternion q0(req.startGeoPose.orientation.x,
+                     req.startGeoPose.orientation.y,
+                     req.startGeoPose.orientation.z,
+                     req.startGeoPose.orientation.w);
+    tf::Matrix3x3 m0(q0);
+    double roll, pitch, yaw;
+    m0.getRPY(roll, pitch, yaw);
+    
+    gz4d::GeoPointLatLong start_ll(req.startGeoPose.position.latitude, req.startGeoPose.position.longitude,0.0);
+    gz4d::LocalENU geoReference = gz4d::LocalENU(start_ll);
+    auto start_local = geoReference.toLocal(start_ll);
+    
+    double start[3];
+    start[0] = start_local[0];
+    start[1] = start_local[1];
+    start[2] = yaw;
+    
+    tf::Quaternion q1(req.targetGeoPose.orientation.x,
+                     req.targetGeoPose.orientation.y,
+                     req.targetGeoPose.orientation.z,
+                     req.targetGeoPose.orientation.w);
+    tf::Matrix3x3 m1(q1);
+    m1.getRPY(roll, pitch, yaw);
+
+    gz4d::GeoPointLatLong target_ll(req.targetGeoPose.position.latitude, req.targetGeoPose.position.longitude,0.0);
+    auto target_local = geoReference.toLocal(target_ll);
+    double target[3];
+    target[0] = target_local[0];
+    target[1] = target_local[1];
+    target[2] = yaw;
+
+    DubinsPath path;
+    
+    int dubins_ret = dubins_shortest_path(&path, start, target, rho);
+    
+    
+    if(dubins_ret == 0)
+    {
+        ResponseAndENU response;
+        response.localENU = &geoReference;
+        response.res = &res;
+        dubins_ret = dubins_path_sample_many(&path, req.samplingInterval, buildPathLatLong, &response);
+        if(dubins_ret == 0)
+            res.success = true;
+    }
+    
+    return true;    
+}
+
+
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "project11_transformation_node");
+    ros::init(argc, argv, "dubins_curves");
     
     ros::NodeHandle node;
 
     ros::ServiceServer service = node.advertiseService("dubins_curves",dubinsCurvesService);
+    ros::ServiceServer service_ll = node.advertiseService("dubins_curves_latlong",dubinsCurvesServiceLatLong);
 
     ros::spin();
     return 0;
