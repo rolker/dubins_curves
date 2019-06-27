@@ -26,7 +26,7 @@ generate_messages(
 )
 
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES project11_transformations
 #  CATKIN_DEPENDS project11 roscpp tf2 tf2_ros
 #  DEPENDS system_lib
@@ -37,6 +37,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+add_library(dubins src/dubins.c)
+
 add_executable(${PROJECT_NAME}_node src/dubins_curves_node.cpp src/dubins.c)
 
 add_dependencies(${PROJECT_NAME}_node ${PROJECT_NAME}_generate_messages_cpp)
@@ -44,4 +46,3 @@ add_dependencies(${PROJECT_NAME}_node ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
 )
-
