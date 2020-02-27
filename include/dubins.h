@@ -74,7 +74,7 @@ typedef int (*DubinsPathSamplingCallback)(double q[3], double t, void* user_data
  * @param rho   - turning radius of the vehicle (forward velocity divided by maximum angular velocity)
  * @return      - non-zero on error
  */
-int dubins_shortest_path(DubinsPath* path, double q0[3], double q1[3], double rho);
+int dubins_shortest_path(DubinsPath* path, const double* q0, const double* q1, double rho);
 
 /**
  * Generate a path with a specified word from an initial configuration to
@@ -87,7 +87,7 @@ int dubins_shortest_path(DubinsPath* path, double q0[3], double q1[3], double rh
  * @param pathType - the specific path type to use
  * @return         - non-zero on error
  */
-int dubins_path(DubinsPath* path, double q0[3], double q1[3], double rho, DubinsPathType pathType);
+int dubins_path(DubinsPath* path, const double* q0, const double* q1, double rho, DubinsPathType pathType);
 
 /**
  * Calculate the length of an initialised path
