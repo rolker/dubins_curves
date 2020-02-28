@@ -94,7 +94,7 @@ int dubins_path(DubinsPath* path, const double* q0, const double* q1, double rho
  *
  * @param path - the path to find the length of
  */
-double dubins_path_length(DubinsPath* path);
+double dubins_path_length(const DubinsPath* path);
 
 /**
  * Return the length of a specific segment in an initialized path
@@ -128,7 +128,7 @@ DubinsPathType dubins_path_type(DubinsPath* path);
  * @param q    - the configuration result
  * @returns    - non-zero if 't' is not in the correct range
  */
-int dubins_path_sample(DubinsPath* path, double t, double q[3]);
+int dubins_path_sample(const DubinsPath* path, double t, double q[3]);
 
 /**
  * Walk along the path at a fixed sampling interval, calling the

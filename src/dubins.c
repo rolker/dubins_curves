@@ -138,7 +138,7 @@ int dubins_path(DubinsPath* path, const double* q0, const double* q1, double rho
     return errcode;
 }
 
-double dubins_path_length( DubinsPath* path )
+double dubins_path_length( const DubinsPath* path )
 {
     double length = 0.;
     length += path->param[0];
@@ -195,7 +195,7 @@ void dubins_segment( double t, double qi[3], double qt[3], SegmentType type)
     qt[2] += qi[2];
 }
 
-int dubins_path_sample( DubinsPath* path, double t, double q[3] )
+int dubins_path_sample( const DubinsPath* path, double t, double q[3] )
 {
     /* tprime is the normalised variant of the parameter t */
     double tprime = t / path->rho;
