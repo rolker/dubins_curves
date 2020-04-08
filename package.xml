@@ -18,6 +18,8 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
+  <depend>geographic_msgs</depend>
+  <depend>project11</depend>
 
   <export>
   </export>

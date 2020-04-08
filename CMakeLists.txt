@@ -27,8 +27,8 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES project11_transformations
-#  CATKIN_DEPENDS project11 roscpp tf2 tf2_ros
+  LIBRARIES dubins
+  CATKIN_DEPENDS project11 roscpp geometry_msgs geographic_msgs
 #  DEPENDS system_lib
 )
 
