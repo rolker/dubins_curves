@@ -59,7 +59,7 @@ typedef struct
 
 
 int dubins_word(DubinsIntermediateResults* in, DubinsPathType pathType, double out[3]);
-int dubins_intermediate_results(DubinsIntermediateResults* in, double q0[3], double q1[3], double rho);
+int dubins_intermediate_results(DubinsIntermediateResults* in, const double* q0, const double* q1, double rho);
 
 /**
  * Floating point modulus suitable for rings
@@ -76,7 +76,7 @@ double mod2pi( double theta )
     return fmodr( theta, 2 * M_PI );
 }
 
-int dubins_shortest_path(DubinsPath* path, double q0[3], double q1[3], double rho)
+int dubins_shortest_path(DubinsPath* path, const double* q0, const double* q1, double rho)
 {
     int i, errcode;
     DubinsIntermediateResults in;
@@ -116,7 +116,7 @@ int dubins_shortest_path(DubinsPath* path, double q0[3], double q1[3], double rh
     return EDUBOK;
 }
 
-int dubins_path(DubinsPath* path, double q0[3], double q1[3], double rho, DubinsPathType pathType)
+int dubins_path(DubinsPath* path, const double* q0, const double* q1, double rho, DubinsPathType pathType)
 {
     int errcode;
     DubinsIntermediateResults in;
@@ -138,7 +138,7 @@ int dubins_path(DubinsPath* path, double q0[3], double q1[3], double rho, Dubins
     return errcode;
 }
 
-double dubins_path_length( DubinsPath* path )
+double dubins_path_length( const DubinsPath* path )
 {
     double length = 0.;
     length += path->param[0];
@@ -195,7 +195,7 @@ void dubins_segment( double t, double qi[3], double qt[3], SegmentType type)
     qt[2] += qi[2];
 }
 
-int dubins_path_sample( DubinsPath* path, double t, double q[3] )
+int dubins_path_sample( const DubinsPath* path, double t, double q[3] )
 {
     /* tprime is the normalised variant of the parameter t */
     double tprime = t / path->rho;
@@ -284,7 +284,7 @@ int dubins_extract_subpath( DubinsPath* path, double t, DubinsPath* newpath )
     return 0;
 }
 
-int dubins_intermediate_results(DubinsIntermediateResults* in, double q0[3], double q1[3], double rho)
+int dubins_intermediate_results(DubinsIntermediateResults* in, const double* q0, const double* q1, double rho)
 {
     double dx, dy, D, d, theta, alpha, beta;
     if( rho <= 0.0 ) {
