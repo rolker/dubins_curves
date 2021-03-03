@@ -8,7 +8,9 @@ extern "C" {
 #include "dubins_curves/DubinsCurves.h"
 #include "dubins_curves/DubinsCurvesLatLong.h"
 #include <iostream>
-#include "project11/gz4d_geo.h"
+#include "project11/utils.h"
+
+namespace p11 = project11;
 
 int buildPath(double q[3], double t, void* user_data)
 {
@@ -106,8 +108,10 @@ bool dubinsCurvesServiceLatLong(dubins_curves::DubinsCurvesLatLong::Request &req
     double roll, pitch, yaw;
     m0.getRPY(roll, pitch, yaw);
     
-    gz4d::GeoPointLatLong start_ll(req.startGeoPose.position.latitude, req.startGeoPose.position.longitude,0.0);
-    gz4d::LocalENU geoReference = gz4d::LocalENU(start_ll);
+    p11::LatLongDegrees start_ll;
+    p11::fromMsg(req.startGeoPose.position, start_ll);
+    start_ll.altitude() = 0.0;
+    p11::ENUFrame geoReference(start_ll);
     auto start_local = geoReference.toLocal(start_ll);
     
     double start[3];
@@ -122,7 +126,7 @@ bool dubinsCurvesServiceLatLong(dubins_curves::DubinsCurvesLatLong::Request &req
     tf::Matrix3x3 m1(q1);
     m1.getRPY(roll, pitch, yaw);
 
-    gz4d::GeoPointLatLong target_ll(req.targetGeoPose.position.latitude, req.targetGeoPose.position.longitude,0.0);
+    p11::LatLongDegrees target_ll(req.targetGeoPose.position.latitude, req.targetGeoPose.position.longitude,0.0);
     auto target_local = geoReference.toLocal(target_ll);
     double target[3];
     target[0] = target_local[0];
