@@ -86,10 +86,10 @@ int buildPathLatLong(double q[3], double t, void* user_data)
     quaternionTFToMsg(quat, pose.orientation);
     
     gz4d::Point<double> local(q[0],q[1],0.0);
-    auto local_ll = ret->localENU->toLatLong(local);
+    p11::LatLongDegrees local_ll = ret->localENU->toLatLong(local);
     
-    pose.position.latitude = local_ll[0];
-    pose.position.longitude = local_ll[1];
+    pose.position.latitude = local_ll.latitude();
+    pose.position.longitude = local_ll.longitude();
     
     ret->res->path.push_back(pose);
     
