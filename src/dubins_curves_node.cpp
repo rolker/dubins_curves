@@ -3,7 +3,7 @@
 #include <tf/transform_datatypes.h>
 #include <geometry_msgs/PoseArray.h>
 extern "C" {
-    #include "dubins.h"
+    #include "dubins_curves/dubins.h"
 }
 #include "dubins_curves/DubinsCurves.h"
 #include "dubins_curves/DubinsCurvesLatLong.h"
