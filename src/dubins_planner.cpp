@@ -1,6 +1,7 @@
 #include <dubins_curves/dubins_planner.h>
 #include <pluginlib/class_list_macros.h>
 #include <tf2/utils.h>
+#include <nav_msgs/Path.h>
 
 extern "C" {
   #include "dubins_curves/dubins.h"
@@ -32,6 +33,7 @@ void DubinsPlanner::initialize(std::string name, costmap_2d::Costmap2DROS* costm
   ros::NodeHandle private_nh("~/" + name);
   private_nh.param("step_size", step_size_, step_size_);
   private_nh.param("radius", radius_, radius_);
+  path_pub_ = private_nh.advertise<nav_msgs::Path>("plan", 10, true);
 }
 
 bool DubinsPlanner::makePlan(const geometry_msgs::PoseStamped& start, 
@@ -70,12 +72,24 @@ bool DubinsPlanner::makePlan(const geometry_msgs::PoseStamped& start,
     return false;
   }
 
+  ROS_INFO_STREAM("start time: " << start.header.stamp << " goal time: " << goal.header.stamp);
   double timespan = (goal.header.stamp - start.header.stamp).toSec();
+  ROS_INFO_STREAM("timespan: " << timespan);
+  double path_length = dubins_path_length(&path);
+  ROS_INFO_STREAM("path length: " << path_length);
   for(auto& p: plan)
   {
     p.header.frame_id = start.header.frame_id;
-    p.header.stamp = start.header.stamp +  ros::Duration(p.header.stamp.toSec()*timespan);
+    p.header.stamp = start.header.stamp + ros::Duration(timespan*p.header.stamp.toSec()/path_length);
   }
+
+  nav_msgs::Path output_path;
+  if(!plan.empty())
+    output_path.header = plan.front().header;
+  for(auto p: plan)
+    output_path.poses.push_back(p);
+  path_pub_.publish(output_path);
+
   return true;
 }
 
@@ -91,7 +105,7 @@ int buildPath(double q[3], double t, void* user_data)
   pose.pose.position.x = q[0];
   pose.pose.position.y = q[1];
 
-  pose.header.stamp.fromSec(t);
+  pose.header.stamp.fromSec(t); // t is distance so effectivly 1 m/s
     
   pose_vector->push_back(pose);
     

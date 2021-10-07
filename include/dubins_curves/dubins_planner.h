@@ -28,6 +28,8 @@ private:
 
   /// Segment length used for turning curves into segments
   double step_size_ = 2;
+
+  ros::Publisher path_pub_;
 };
 
 
