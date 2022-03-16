@@ -11,6 +11,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>roscpp</depend>
   <depend>project11</depend>
+  <depend>project11_navigation</depend>
   <depend>geometry_msgs</depend>
   <depend>message_generation</depend>
   <depend>message_runtime</depend>
@@ -21,6 +22,7 @@
   <depend>pluginlib</depend>
 
   <export>
-    <nav_core plugin="${prefix}/dubins_planner_plugin.xml" />
+    <nav_core plugin="${prefix}/nav_core_plugin.xml" />
+    <project11_navigation plugin="${prefix}/project11_navigation_plugin.xml" />
   </export>
 </package>

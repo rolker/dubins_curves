@@ -1,5 +1,5 @@
-#ifndef DUBBINS_PLANNER_H
-#define DUBBINS_PLANNER_H
+#ifndef DUBINS_PLANNER_H
+#define DUBINS_PLANNER_H
 
 #include <nav_core/base_global_planner.h>
 

@@ -1,0 +1,7 @@
+<library path="lib/libdubins_plugins">
+  <class name="dubins_curves/Dubins" type="dubins_curves::Dubins" base_class_type="project11_navigation::TaskToTaskWorkflow">
+    <description>
+      A simple planner that generates a Dubin's path without avoiding obstacles.
+    </description>
+  </class>
+</library>

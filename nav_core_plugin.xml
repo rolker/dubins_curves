@@ -1,4 +1,4 @@
-<library path="lib/libdubins_planner">
+<library path="lib/libdubins_plugins">
   <class name="dubins_planner/DubinsPlanner" type="dubins_planner::DubinsPlanner" base_class_type="nav_core::BaseGlobalPlanner">
     <description>
       A simple planner that generates a Dubin's path without avoiding obstacles.
