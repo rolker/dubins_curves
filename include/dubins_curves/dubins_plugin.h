@@ -24,7 +24,19 @@ private:
   /// Segment length used for turning curves into segments
   double step_size_ = 2;
 
+  std::string output_task_type_ = "follow_trajectory";
+  std::string output_task_name_ = "navigation_trajectory";
 };
+
+struct SampleContext
+{
+  std::vector<geometry_msgs::PoseStamped>* pose_vector;
+  ros::Time start_time;
+  double speed;
+};
+
+/// Callback used to convert a curve to segments
+int buildPath(double q[3], double t, void* user_data);
 
 
 } // namespace dubins_curves
