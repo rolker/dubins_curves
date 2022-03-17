@@ -61,6 +61,7 @@ add_dependencies(dubins_plugins ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXP
 target_link_libraries(dubins_plugins
     dubins
     ${catkin_LIBRARIES}
+    project11_navigation
     )
 
 install(TARGETS dubins_plugins dubins
