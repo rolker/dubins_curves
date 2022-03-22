@@ -33,6 +33,7 @@ struct SampleContext
   std::vector<geometry_msgs::PoseStamped>* pose_vector;
   ros::Time start_time;
   double speed;
+  std::string frame_id;
 };
 
 /// Callback used to convert a curve to segments

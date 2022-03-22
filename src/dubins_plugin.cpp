@@ -25,15 +25,7 @@ void Dubins::configure(std::string name, project11_navigation::Context::Ptr cont
 void Dubins::setGoal(const std::shared_ptr<project11_navigation::Task>& input)
 {
   input_task_ = input;
-}
-
-bool Dubins::running()
-{
-  return false;
-}
-
-bool Dubins::getResult(std::shared_ptr<project11_navigation::Task>& output)
-{
+  output_task_.reset();
   if(input_task_)
   {
     auto caps = context_->getRobotCapabilities();
@@ -57,7 +49,7 @@ bool Dubins::getResult(std::shared_ptr<project11_navigation::Task>& output)
 
     const project11_nav_msgs::Task& msg = input_task_->message();
     if(msg.poses.size() < 2)
-      return false;
+      return;
 
     ros::Time current_start_time = ros::Time::now();
     curved_trajectory.start = msg.poses.front();
@@ -86,7 +78,7 @@ bool Dubins::getResult(std::shared_ptr<project11_navigation::Task>& output)
         if(dubins_ret != 0)
         {
           ROS_ERROR_STREAM_THROTTLE(2.0, "Error finding Dubin's shortest path");
-          return false;
+          return;
         }
 
         double total_distance = path.param[0] + path.param[1] + path.param[2];
@@ -159,6 +151,7 @@ bool Dubins::getResult(std::shared_ptr<project11_navigation::Task>& output)
           c.pose_vector = &sampled_trajectory;
           c.start_time = current_start_time;
           c.speed = speed;
+          c.frame_id = p->header.frame_id;
 
           dubins_ret = dubins_path_sample_many(&path, step_size, buildPath, &c);
           if(dubins_ret != 0)
@@ -170,14 +163,36 @@ bool Dubins::getResult(std::shared_ptr<project11_navigation::Task>& output)
         current_start_time = current_end_time;
       }
     }
-    output = input_task_->getFirstChildOfTypeAndIDOrCreate(output_task_type_, output_task_name_);
-    auto out_msg = output->message();
+    for(auto t: input_task_->children().tasks())
+      if(t->message().type == output_task_type_ && t->message().id == input_task_->getChildID(output_task_name_))
+      {
+        output_task_ = t;
+        break;
+      }
+    if(!output_task_)
+    {
+      output_task_ = input_task_->createChildTaskBefore(std::shared_ptr<project11_navigation::Task>(),output_task_type_);
+      input_task_->setChildID(output_task_, output_task_name_);
+    }
+    auto out_msg = output_task_->message();
     out_msg.curved_trajectories.clear();
     out_msg.curved_trajectories.push_back(curved_trajectory);
     out_msg.poses = sampled_trajectory;
-    output->update(out_msg);
-    return true;
+    output_task_->update(out_msg);
+  }
+}
 
+bool Dubins::running()
+{
+  return false;
+}
+
+bool Dubins::getResult(std::shared_ptr<project11_navigation::Task>& output)
+{
+  if(output_task_)
+  {
+    output = output_task_;
+    return true;
   }
   return false;
 }
@@ -188,6 +203,7 @@ int buildPath(double q[3], double t, void* user_data)
   SampleContext* c = reinterpret_cast<SampleContext*>(user_data);
     
   geometry_msgs::PoseStamped pose;
+  pose.header.frame_id = c->frame_id;
   tf2::Quaternion quat(tf2::Vector3(0,0,1), q[2]);
   pose.pose.orientation = tf2::toMsg(quat);
     
