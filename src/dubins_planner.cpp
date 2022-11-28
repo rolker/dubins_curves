@@ -7,9 +7,9 @@ extern "C" {
   #include "dubins_curves/dubins.h"
 }
 
-PLUGINLIB_EXPORT_CLASS(dubins_planner::DubinsPlanner, nav_core::BaseGlobalPlanner)
+PLUGINLIB_EXPORT_CLASS(dubins_curves::DubinsPlanner, nav_core::BaseGlobalPlanner)
 
-namespace dubins_planner
+namespace dubins_curves
 {
 
 DubinsPlanner::DubinsPlanner()
@@ -65,7 +65,7 @@ bool DubinsPlanner::makePlan(const geometry_msgs::PoseStamped& start,
     return false;
   }
 
-  dubins_ret = dubins_path_sample_many(&path, step_size_, buildPath, &plan);
+  dubins_ret = dubins_path_sample_many(&path, step_size_, buildNavCorePath, &plan);
   if(dubins_ret != 0)
   {
     ROS_ERROR_STREAM_THROTTLE(2.0, "Error sampling Dubin's path");
@@ -94,7 +94,7 @@ bool DubinsPlanner::makePlan(const geometry_msgs::PoseStamped& start,
 }
 
 
-int buildPath(double q[3], double t, void* user_data)
+int buildNavCorePath(double q[3], double t, void* user_data)
 {
   std::vector<geometry_msgs::PoseStamped>* pose_vector = reinterpret_cast<std::vector<geometry_msgs::PoseStamped>*>(user_data);
     

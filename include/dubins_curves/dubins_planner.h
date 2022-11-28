@@ -3,7 +3,7 @@
 
 #include <nav_core/base_global_planner.h>
 
-namespace dubins_planner
+namespace dubins_curves
 {
 
 /// Generates a Dubin's path to the goal ignoring all obstacles.
@@ -34,7 +34,7 @@ private:
 
 
 /// Callback used to convert a curve to segments
-int buildPath(double q[3], double t, void* user_data);
+int buildNavCorePath(double q[3], double t, void* user_data);
 
 }
 
