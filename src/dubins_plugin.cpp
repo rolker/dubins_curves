@@ -22,7 +22,7 @@ void Dubins::configure(std::string name, project11_navigation::Context::Ptr cont
   nh.param("output_task_name", output_task_name_, output_task_name_);
 }
 
-void Dubins::setGoal(const std::shared_ptr<project11_navigation::Task>& input)
+void Dubins::setGoal(const project11_navigation::Task::Ptr& input)
 {
   input_task_ = input;
   output_task_.reset();
@@ -47,7 +47,7 @@ void Dubins::setGoal(const std::shared_ptr<project11_navigation::Task>& input)
     project11_nav_msgs::CurvedTrajectory curved_trajectory;
     std::vector<geometry_msgs::PoseStamped> sampled_trajectory;
 
-    const project11_nav_msgs::Task& msg = input_task_->message();
+    const project11_nav_msgs::TaskInformation& msg = input_task_->message();
     if(msg.poses.size() < 2)
       return;
 
@@ -171,7 +171,7 @@ void Dubins::setGoal(const std::shared_ptr<project11_navigation::Task>& input)
       }
     if(!output_task_)
     {
-      output_task_ = input_task_->createChildTaskBefore(std::shared_ptr<project11_navigation::Task>(),output_task_type_);
+      output_task_ = input_task_->createChildTaskBefore(project11_navigation::Task::Ptr(),output_task_type_);
       input_task_->setChildID(output_task_, output_task_name_);
     }
     auto out_msg = output_task_->message();
@@ -187,7 +187,7 @@ bool Dubins::running()
   return false;
 }
 
-bool Dubins::getResult(std::shared_ptr<project11_navigation::Task>& output)
+bool Dubins::getResult(project11_navigation::Task::Ptr& output)
 {
   if(output_task_)
   {
