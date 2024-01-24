@@ -10,7 +10,6 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   geographic_msgs
   project11
-  project11_navigation
   tf
   nav_core
   pluginlib
@@ -31,8 +30,8 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES dubins dubins_plugins
-  CATKIN_DEPENDS project11 project11_navigation roscpp tf2 tf2_ros nav_core pluginlib
+  LIBRARIES dubins
+  CATKIN_DEPENDS project11 roscpp tf2 tf2_ros nav_core pluginlib
 #  DEPENDS system_lib
 )
 
@@ -56,15 +55,15 @@ set(PLUGIN_SOURCES
   src/dubins_plugin.cpp
 )
 
-add_library(dubins_plugins ${PLUGIN_SOURCES})
-add_dependencies(dubins_plugins ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(dubins_plugins
-    dubins
-    ${catkin_LIBRARIES}
-    project11_navigation
-    )
+# add_library(dubins_plugins ${PLUGIN_SOURCES})
+# add_dependencies(dubins_plugins ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(dubins_plugins
+#     dubins
+#     ${catkin_LIBRARIES}
+#     project11_navigation
+#     )
 
-install(TARGETS dubins_plugins dubins
+install(TARGETS dubins
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

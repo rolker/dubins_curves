@@ -10,13 +10,13 @@ class Dubins: public project11_navigation::TaskToTaskWorkflow
 {
 public:
   void configure(std::string name, project11_navigation::Context::Ptr context) override;
-  void setGoal(const boost::shared_ptr<project11_navigation::Task>& input) override;
+  void setGoal(const project11_navigation::TaskPtr& input) override;
   bool running() override;
-  bool getResult(boost::shared_ptr<project11_navigation::Task>& output) override;
+  bool getResult(project11_navigation::TaskPtr& output) override;
 private:
   project11_navigation::Context::Ptr context_;
-  project11_navigation::Task::Ptr input_task_;
-  project11_navigation::Task::Ptr output_task_;
+  project11_navigation::TaskPtr input_task_;
+  project11_navigation::TaskPtr output_task_;
 
   /// Turn radius in meters
   double radius_ = 10;

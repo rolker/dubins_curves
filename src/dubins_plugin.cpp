@@ -1,6 +1,7 @@
 #include <dubins_curves/dubins_plugin.h>
 #include <pluginlib/class_list_macros.h>
 #include <tf2/utils.h>
+#include <project11_navigation/robot_capabilities.h>
 
 extern "C" {
   #include "dubins_curves/dubins.h"
@@ -22,13 +23,15 @@ void Dubins::configure(std::string name, project11_navigation::Context::Ptr cont
   nh.param("output_task_name", output_task_name_, output_task_name_);
 }
 
-void Dubins::setGoal(const project11_navigation::Task::Ptr& input)
+void Dubins::setGoal(const project11_navigation::TaskPtr& input)
 {
   input_task_ = input;
   output_task_.reset();
   if(input_task_)
   {
-    auto caps = context_->getRobotCapabilities();
+    //auto caps = context_->getRobotCapabilities();
+    ros::NodeHandle nh("~");
+    project11_navigation::RobotCapabilities caps(nh);
 
     double speed = caps.default_velocity.linear.x;
     double radius = caps.getTurnRadiusAtSpeed(speed);
@@ -171,7 +174,7 @@ void Dubins::setGoal(const project11_navigation::Task::Ptr& input)
       }
     if(!output_task_)
     {
-      output_task_ = input_task_->createChildTaskBefore(project11_navigation::Task::Ptr(),output_task_type_);
+      output_task_ = input_task_->createChildTaskBefore(project11_navigation::TaskPtr(),output_task_type_);
       input_task_->setChildID(output_task_, output_task_name_);
     }
     auto out_msg = output_task_->message();
@@ -187,7 +190,7 @@ bool Dubins::running()
   return false;
 }
 
-bool Dubins::getResult(project11_navigation::Task::Ptr& output)
+bool Dubins::getResult(project11_navigation::TaskPtr& output)
 {
   if(output_task_)
   {
